@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 READLINK="readlink"
-if [[ $(uname -s) == "Darwin" ]]; then READLINK="greadlink"
+if [[ $(uname -s) == "Darwin" ]]; then
+  READLINK="greadlink"
 fi
 
 HOME=$(dirname "$($READLINK -f "$0")")
@@ -9,7 +10,7 @@ HOME=$(dirname "$($READLINK -f "$0")")
 HTTP_PORT=9080
 HTTPS_PORT=9443
 
-DOCKER_IMAGE="api7/apisix-cloud-dp:latest"
+DOCKER_IMAGE="api7/apisix-cloud-dp:dev"
 
 VERBOSE_FLAG=
 FOREGROUND_FLAG=
