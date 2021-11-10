@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 READLINK="readlink"
-if [[ $(uname -s) == "Darwin" ]]; then
-  READLINK="greadlink"
+if [[ $(uname -s) == "Darwin" ]]; then READLINK="greadlink"
 fi
 
 HOME=$(dirname "$($READLINK -f "$0")")
@@ -51,12 +50,12 @@ cleanup() {
 
 check_dependencies() {
   # check if docker is installed
-  if [[ -n "$(docker version 2>/dev/null |grep  -o 'Version')" ]]; then
+  if [[ -z "$(docker version 2>/dev/null |grep  -o 'Version:')" ]]; then
     error "service: docker has not been installed yet."
   fi
 
   if [[ "${VERBOSE_FLAG}" == "on" ]]; then
-    ver="$(docker version 2>/deve/null |grep -o "Version:.*" | awk '{print $2}')"
+    ver="$(docker version 2>/dev/null |grep -o "Version:.*" | awk '{print $2}')"
     debug "docker version: $ver"
   fi
 }
@@ -209,6 +208,8 @@ main() {
   args_parse $@
 
   validate
+
+  check_dependencies
 
   configure_certificate
 
