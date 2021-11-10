@@ -10,7 +10,7 @@ HOME=$(dirname "$($READLINK -f "$0")")
 HTTP_PORT=9080
 HTTPS_PORT=9443
 
-DOCKER_IMAGE="api7/apisix-cloud-dp:dev"
+DOCKER_IMAGE="api7/apisix-cloud-dp:latest"
 
 VERBOSE_FLAG=
 FOREGROUND_FLAG=
@@ -27,6 +27,7 @@ Options:
     -p,  --http-port     specify APISIX Gateway HTTP port
          --https-port    specify APISIX Gateway HTTPS port
     -di, --docker-image  docker image
+    -f,  --foreground    run APISIX Gateway on the foreground
     -v,  --verbose       make the operation more talkative
     -h, --help           display this help and exit
 EOF
@@ -55,7 +56,7 @@ check_dependencies() {
   fi
 
   if [[ "${VERBOSE_FLAG}" == "on" ]]; then
-    ver="$(docker veresion 2>/deve/null |grep -o "Version:.*" | awk '{print $2}')"
+    ver="$(docker version 2>/deve/null |grep -o "Version:.*" | awk '{print $2}')"
     debug "docker version: $ver"
   fi
 }
@@ -94,7 +95,7 @@ args_parse() {
       DOCKER_IMAGE=$2
       shift
       ;;
-    -v | --versobe)
+    -v | --verbose)
       VERBOSE_FLAG="on"
       ;;
     -h | --help)
