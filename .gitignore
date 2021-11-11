@@ -1,1 +1,9 @@
 .DS_Store
+
+# generated temporary directory
+.cloud
+.docker
+
+# IDE related
+.idea
+.vscode
