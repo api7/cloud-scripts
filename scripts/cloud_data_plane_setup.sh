@@ -27,6 +27,7 @@ Options:
     -p,  --http-port     specify APISIX Gateway HTTP port
          --https-port    specify APISIX Gateway HTTPS port
     -di, --docker-image  docker image
+    -f,  --foreground    run APISIX Gateway on the foreground
     -v,  --verbose       make the operation more talkative
     -h, --help           display this help and exit
 EOF
@@ -50,12 +51,12 @@ cleanup() {
 
 check_dependencies() {
   # check if docker is installed
-  if [[ -n "$(docker version 2>/dev/null |grep  -o 'Version')" ]]; then
+  if [[ -z "$(docker version 2>/dev/null |grep  -o 'Version:')" ]]; then
     error "service: docker has not been installed yet."
   fi
 
   if [[ "${VERBOSE_FLAG}" == "on" ]]; then
-    ver="$(docker veresion 2>/deve/null |grep -o "Version:.*" | awk '{print $2}')"
+    ver="$(docker version 2>/dev/null |grep -o "Version:.*" | awk '{print $2}')"
     debug "docker version: $ver"
   fi
 }
@@ -94,7 +95,7 @@ args_parse() {
       DOCKER_IMAGE=$2
       shift
       ;;
-    -v | --versobe)
+    -v | --verbose)
       VERBOSE_FLAG="on"
       ;;
     -h | --help)
@@ -208,6 +209,8 @@ main() {
   args_parse $@
 
   validate
+
+  check_dependencies
 
   configure_certificate
 
