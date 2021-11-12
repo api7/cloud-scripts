@@ -5,8 +5,6 @@ if [[ $(uname -s) == "Darwin" ]]; then
   READLINK="greadlink"
 fi
 
-HOME=$($READLINK -f .)
-
 HTTP_PORT=9080
 HTTPS_PORT=9443
 
