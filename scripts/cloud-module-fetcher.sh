@@ -63,7 +63,7 @@ args_parse() {
       exit 0
       ;;
     *)
-      error "the argument[$1] is expected"
+      error "the argument[$1] is unexpected"
       ;;
     esac
     shift
