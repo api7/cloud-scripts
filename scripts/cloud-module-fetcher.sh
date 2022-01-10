@@ -5,13 +5,9 @@ if [[ $(uname -s) == "Darwin" ]]; then
   READLINK="greadlink"
 fi
 
-SOURCE_URL="https://github.com/api7/cloud-scripts/raw/7da72fa3a4d563fac23fcd628fcdc601aa78dbb0/assets/cloud_module_beta.tar.gz"
-
 CLOUD_MODULE_NAME="cloud_module_beta"
-
 VERBOSE_FLAG="off"
 SAVE_TO_FLAG="local"
-
 OUTPUT_FILEPATH=
 OUTPUT_CONFIGMAP_NAMESPACE=
 OUTPUT_CONFIGMAP_NAME=
