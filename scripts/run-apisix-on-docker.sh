@@ -181,7 +181,7 @@ run_apisix_docker() {
     fi
 
     echo -e "> docker id: ${docker_id}"
-    echo -e "\033[32m> run APISIX gateway successfully on docker.\033[0m"
+    echo -e "\033[32m> launch successfully.\033[0m"
   fi
 }
 
