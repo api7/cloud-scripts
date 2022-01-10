@@ -7,15 +7,15 @@ fi
 
 HTTP_PORT=9080
 HTTPS_PORT=9443
-
-DOCKER_IMAGE="api7/apisix-cloud-dp:dev"
-
+DOCKER_IMAGE="apache/apisix:2.11.0-centos"
+CLOUD_MODULE_PATH="/tmp/cloud_module_beta"
+CONFIG_PATH=
 VERBOSE_FLAG=
 FOREGROUND_FLAG=
 
 help() {
 cat << EOF
-Usage: cloud_data_plane_setup.sh [options]
+Usage: run-apisix-on-docker.sh [options]
 
 Options:
     -d,  --domain        specify the domain of control plane
@@ -45,18 +45,6 @@ error() {
 # sweep the workspace
 cleanup() {
   exit $1
-}
-
-check_dependencies() {
-  # check if docker is installed
-  if [[ -z "$(docker version 2>/dev/null |grep  -o 'Version:')" ]]; then
-    error "service: docker has not been installed yet."
-  fi
-
-  if [[ "${VERBOSE_FLAG}" == "on" ]]; then
-    ver="$(docker version 2>/dev/null |grep -o "Version:.*" | awk '{print $2}')"
-    debug "docker version: $ver"
-  fi
 }
 
 args_parse() {
@@ -110,19 +98,13 @@ args_parse() {
 
 # validate the arguments
 validate() {
-  debug "make sure certificate and private key are existing"
-
-  # ensure certs existed
+  # ensure certs exist
   [[ -f $CA_CERT ]] || error "CA certificate: ${CA_CERT} is not a file"
-  [[ -f $CERT ]] || error "client certificate: ${CERT} is not file or existed"
-  [[ -f $KEY ]] || error "private key: ${KEY} is not file or existed"
+  [[ -f $CERT ]] || error "certificate: ${CERT} is not file"
+  [[ -f $KEY ]] || error "private key: ${KEY} is not file"
 
   # domain cannot be empty
   [[ -z "$DOMAIN" ]] && error "domain cannot be empty"
-}
-
-configure_certificate() {
-  debug "converting to absolute path"
 
   CA_CERT="$($READLINK -f $CA_CERT)"
   CERT="$($READLINK -f $CERT)"
@@ -132,35 +114,28 @@ configure_certificate() {
 # generate the APISIX gateway configuration file
 generate_configuration() {
   debug "generating APISIX configuration"
+  CONFIG_PATH=`mktemp /tmp/apisix-config.yaml.XXXXXX`
+  chmod a+r ${CONFIG_PATH}
 
-  if [[ ! -d ${HOME}/.cloud ]]; then
-    mkdir -p ${HOME}/.cloud
-  else
-    [[ -f ${HOME}/.cloud/config.yaml ]] && echo "> config.yaml file existed, it will be overwritten"
-  fi
-
-  cat > ${HOME}/.cloud/config.yaml << EOF
+  cat > ${CONFIG_PATH} << EOF
 apisix:
   enable_admin: false
   ssl:
-    ssl_trusted_certificate: /usr/local/cloud/cert/ca.crt
-
+    ssl_trusted_certificate: /cloud/tls/ca.crt
+  lua_module_hook: cloud
+  extra_lua_path: /lua_module_hook/?.ljbc;
+nginx_config:
+  http:
+    custom_lua_shared_dict:
+      cloud: 1m
 etcd:
   host:
     - "https://${DOMAIN}:443"
   tls:
-    cert: /usr/local/cloud/cert/tls.crt
-    key: /usr/local/cloud/cert/tls.key
+    cert: /cloud/tls/tls.crt
+    key: /cloud/tls/tls.key
     sni: ${DOMAIN}
     verify: true
-
-plugin_attr:
-  cloud:
-    domain: ${DOMAIN}
-    port: 443
-    cert: /usr/local/cloud/cert/tls.crt
-    key: /usr/local/cloud/cert/tls.key
-
 EOF
 }
 
@@ -177,17 +152,24 @@ download_docker_image() {
   debug "downloaded APISIX docker image"
 }
 
+download_cloud_module() {
+    debug "downloading cloud lua module ..."
+
+    /bin/bash <(curl -fsSL 'https://raw.githubusercontent.com/api7/cloud-scripts/a9fa31ae0518e5188f66b42a5e46042b75cad993/scripts/cloud-module-fetcher.sh')
+}
+
 # run APISIX in docker
 run_apisix_docker() {
-  debug "starting APISIX gateway"
+  debug "starting APISIX"
 
   docker_command="
       -p ${HTTP_PORT}:9080 \
       -p ${HTTPS_PORT}:9443 \
-      --mount type=bind,source=${HOME}/.cloud/config.yaml,target=/usr/local/apisix/conf/config.yaml,readonly \
-      --mount type=bind,source=${CA_CERT},target=/usr/local/cloud/cert/ca.crt,readonly \
-      --mount type=bind,source=${CERT},target=/usr/local/cloud/cert/tls.crt,readonly \
-      --mount type=bind,source=${KEY},target=/usr/local/cloud/cert/tls.key,readonly \
+      --mount type=bind,source=${CONFIG_PATH},target=/usr/local/apisix/conf/config.yaml,readonly \
+      --mount type=bind,source=${CA_CERT},target=/cloud/tls/ca.crt,readonly \
+      --mount type=bind,source=${CERT},target=/cloud/tls/tls.crt,readonly \
+      --mount type=bind,source=${KEY},target=/cloud/tls/tls.key,readonly \
+      --mount type=bind,source=${CLOUD_MODULE_PATH},target=/lua_module_hook,readonly \
       ${DOCKER_IMAGE}"
 
   if [[ "${FOREGROUND_FLAG}" == "on" ]]; then
@@ -204,21 +186,13 @@ run_apisix_docker() {
 }
 
 main() {
-  args_parse $@
-
-  validate
-
-  check_dependencies
-
-  configure_certificate
-
-  generate_configuration
-
-  download_docker_image
-
-  run_apisix_docker
-
-  cleanup 0
+    args_parse $@
+    validate
+    download_cloud_module
+    generate_configuration
+    #download_docker_image
+    run_apisix_docker
+    cleanup 0
 }
 
 main $@
