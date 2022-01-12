@@ -155,7 +155,7 @@ download_docker_image() {
 download_cloud_module() {
     debug "downloading cloud lua module ..."
 
-    /bin/bash <(curl -fsSL 'https://raw.githubusercontent.com/api7/cloud-scripts/a9fa31ae0518e5188f66b42a5e46042b75cad993/scripts/cloud-module-fetcher.sh')
+    /bin/bash <(curl -fsSL 'https://raw.githubusercontent.com/api7/cloud-scripts/main/scripts/cloud-module-fetcher.sh')
 }
 
 # run APISIX in docker
