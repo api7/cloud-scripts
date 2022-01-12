@@ -92,7 +92,7 @@ validate() {
 download_cloud_module() {
     mkdir -p ${OUTPUT_FILEPATH}
     echo -e "> downloading cloud module"
-    curl -sL https://github.com/api7/cloud-scripts/raw/7da72fa3a4d563fac23fcd628fcdc601aa78dbb0/assets/${CLOUD_MODULE_NAME}.tar.gz | tar -C ${OUTPUT_FILEPATH} -zxf -
+    curl -sL https://github.com/api7/cloud-scripts/raw/main/assets/${CLOUD_MODULE_NAME}.tar.gz | tar -C ${OUTPUT_FILEPATH} -zxf -
 
     if [[ $? = 0 ]]; then
         echo -e "> save cloud module to ${OUTPUT_FILEPATH}/${CLOUD_MODULE_NAME}"
