@@ -1,0 +1,23 @@
+name: Uplaod assets to COS
+on:
+  push:
+    tags:
+      - '**'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  push_assets:
+   runs-on: ubuntu-latest
+   steps:
+     - name: Checkout
+       uses: actions/checkout@v2
+     - name: Upload to COS
+       uses: zkqiang/tencent-cos-action@v0.1.0
+       with:
+          args: |
+            upload -r ./assets/ /${{ github.ref_name }}/assets/ && upload -r ./scripts/ /${{ github.ref_name }}/scripts/
+          secret_id: ${{ secrets.SECRET_ID }}
+          secret_key: ${{ secrets.SECRET_KEY }}
+          bucket: ${{ secrets.BUCKET }}
+          region: ap-nanjing
