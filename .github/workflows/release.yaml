@@ -16,8 +16,7 @@ jobs:
        uses: zkqiang/tencent-cos-action@v0.1.0
        with:
           args: |
-            upload -r ./assets/ /${{ github.ref_name }}/assets/ && upload -r ./scripts/ /${{ github.ref_name }}/scripts/ \
-            && upload -r ./assets/ /latest/assets/ && upload -r ./scripts/ /latest/scripts/
+            upload -r ./assets/ /${{ github.ref_name }}/assets/ && upload -r ./assets/ /latest/assets/
           secret_id: ${{ secrets.TENCET_COS_SECRET_ID }}
           secret_key: ${{ secrets.TENCET_COS_SECRET_KEY }}
           bucket: ${{ secrets.TENCET_COS_BUCKET }}
