@@ -22,9 +22,3 @@ jobs:
           secret_key: ${{ secrets.TENCET_COS_SECRET_KEY }}
           bucket: ${{ secrets.TENCET_COS_BUCKET }}
           region: ap-nanjing
-     - name: Make latest Tag
-       uses: rickstaa/action-create-tag@v1
-       with:
-          force_push_tag: true
-          tag: "latest"
-          message: "Latest release version ${{ github.ref_name }}"
