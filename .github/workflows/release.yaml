@@ -17,7 +17,7 @@ jobs:
        with:
           args: |
             upload -r ./assets/ /${{ github.ref_name }}/assets/ && upload -r ./assets/ /latest/assets/
-          secret_id: ${{ secrets.TENCET_COS_SECRET_ID }}
-          secret_key: ${{ secrets.TENCET_COS_SECRET_KEY }}
-          bucket: ${{ secrets.TENCET_COS_BUCKET }}
+          secret_id: ${{ secrets.TENCENT_COS_SECRET_ID }}
+          secret_key: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+          bucket: ${{ secrets.TENCENT_COS_BUCKET }}
           region: ap-nanjing
